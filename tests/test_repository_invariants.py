@@ -382,3 +382,30 @@ def test_license_is_apache_2_0(repo_root):
 
     pyproject = tomllib.loads((repo_root / "pyproject.toml").read_text(encoding="utf-8"))
     assert pyproject["project"]["license"] == "Apache-2.0"
+
+
+def test_baseline_runner_accepts_an_out_of_tree_output_directory(repo_root, tmp_path):
+    """`--out` may point outside the repository, as it does in CI.
+
+    Regression: the runner rendered its "wrote <path>" lines with
+    `Path.relative_to(REPO_ROOT)` unconditionally, which raises when the output
+    directory is not inside the working tree. The reports were written
+    correctly and the gate passed; the run still failed. Caught by CI, which
+    writes to a scratch directory, and never by a local run using the default.
+    """
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "evaluation" / "run_baseline.py"),
+            "--out",
+            str(tmp_path / "out"),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "gate PASS" in result.stdout
+    assert (tmp_path / "out" / "reference-baseline.md").is_file()
+    assert (tmp_path / "out" / "reference-baseline.json").is_file()

@@ -78,8 +78,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         write_markdown(run, md_path)
         write_json(run, json_path)
-        print(f"wrote {md_path.relative_to(REPO_ROOT)}")
-        print(f"wrote {json_path.relative_to(REPO_ROOT)}")
+        print(f"wrote {_display(md_path)}")
+        print(f"wrote {_display(json_path)}")
 
     print(summary_line(run.summary))
 
@@ -88,6 +88,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  FAIL {failure.case_id}: {failure.divergence}", file=sys.stderr)
         return 1
     return 0
+
+
+def _display(path: Path) -> str:
+    """Render a path relative to the repository when it is inside it.
+
+    ``--out`` may legitimately point anywhere — CI writes to a scratch
+    directory outside the working tree — so this must not assume containment.
+    An earlier version called ``relative_to`` unconditionally and crashed on
+    exactly that case, after the reports had already been written correctly.
+    """
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
 
 
 def _check(run, md_path: Path, json_path: Path) -> list[str]:
