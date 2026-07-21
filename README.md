@@ -7,7 +7,7 @@ Production-Ready Enterprise AI*** by Moataz Mahmoud, M8 Strategies.
 |---|---|---|
 | **Paper** | Specification and research argument. The authoritative publication. | [https://www.m8strategies.com/blog/executable-trust](https://www.m8strategies.com/blog/executable-trust) |
 | **Repository** | Independent reference implementation of the paper's mechanisms. | [https://github.com/m8strategies/executable-trust-reference](https://github.com/m8strategies/executable-trust-reference) |
-| **Zenodo record** | Archived, citable software release. | DOI: `{{ARCHIVE_DOI}}` (minted on release ingest) |
+| **Zenodo record** | Archived, citable software release. | [`10.5281/zenodo.21473596`](https://doi.org/10.5281/zenodo.21473596) (all versions) |
 
 Release: `v0.1.0`
 
@@ -251,15 +251,22 @@ place. See [`docs/governance-model.md`](docs/governance-model.md).
 
 ## Citation
 
-Cite both the software and the paper.
+Cite the paper for the argument and specification; cite the software when you
+use, extend, or evaluate the implementation. Where both are relevant, cite both.
+
+The software entry uses the **concept DOI**, which always resolves to the
+current version. To pin the exact archived artifact instead, use the v0.1.0
+version DOI `10.5281/zenodo.21473597`.
 
 ```bibtex
 @software{mahmoud_executable_trust_reference,
   author    = {Mahmoud, Moataz},
   title     = {Executable Trust Reference Implementation},
   version   = {0.1.0},
-  url       = https://github.com/m8strategies/executable-trust-reference,
-  doi       = {{ARCHIVE_DOI}},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21473596},
+  url       = {https://github.com/m8strategies/executable-trust-reference},
   note      = {Companion artifact to \emph{Executable Trust: The Runtime
                Architecture of Production-Ready Enterprise AI}}
 }
@@ -270,11 +277,13 @@ Cite both the software and the paper.
                  Production-Ready Enterprise AI},
   institution = {M8 Strategies},
   type        = {Reference White Paper},
-  url         = https://www.m8strategies.com/blog/executable-trust
+  year        = {2026},
+  url         = {https://www.m8strategies.com/blog/executable-trust}
 }
 ```
 
-Machine-readable metadata is in [`CITATION.cff`](CITATION.cff).
+Machine-readable metadata is in [`CITATION.cff`](CITATION.cff), which GitHub
+surfaces via *Cite this repository*.
 
 ## Security
 

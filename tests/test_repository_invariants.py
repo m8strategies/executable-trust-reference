@@ -253,30 +253,61 @@ def _run_release_validation(repo_root, *args):
     )
 
 
-def test_release_validation_passes_before_the_doi_exists(repo_root):
-    """Pre-DOI release preparation is intentionally allowed.
+def test_both_release_gates_pass(repo_root):
+    """v0.1.0 is released and archived, so both gates must now pass.
 
-    A DOI is minted by the archive service *after* a release exists, so
-    requiring one unconditionally would make the first release impossible.
-    Every other publication field must already be resolved for this to pass.
+    The default gate checks every publication field except the DOI. The
+    ``--require-doi`` gate additionally requires the archive identifier, which
+    exists only once the release has been ingested.
+
+    These assertions replace an earlier pair that pinned the *pre*-release
+    state. Those tests asserted the gates blocked on unresolved placeholders;
+    keeping them after the placeholders were resolved would have meant asserting
+    something the system is no longer supposed to do.
     """
-    result = _run_release_validation(repo_root)
+    for args in ((), ("--require-doi",)):
+        result = _run_release_validation(repo_root, *args)
+        assert result.returncode == 0, f"{args or '(default)'}: {result.stderr}"
+        assert "release metadata is complete" in result.stdout
 
-    assert result.returncode == 0, result.stderr
-    assert "release metadata is complete" in result.stdout
 
+def test_doi_is_present_in_citation_metadata(repo_root):
+    """The concept DOI is active in CITATION.cff, not left commented out.
 
-def test_release_validation_blocks_on_an_unresolved_doi(repo_root):
-    """--require-doi is the gate for the post-archive step.
-
-    Run after Zenodo ingests the release. Until the DOI is written back into
-    the metadata and the paper, this must refuse.
+    Regression: the DOI placeholder originally sat inside a comment block, so a
+    plain substitution resolved the value without uncommenting the field. The
+    file parsed, every other check passed, and the most important citation
+    surface in the repository carried no DOI at all.
     """
-    result = _run_release_validation(repo_root, "--require-doi")
+    import yaml
 
-    assert result.returncode == 1
-    assert "RELEASE VALIDATION FAILED" in result.stderr
-    assert "{{ARCHIVE_DOI}}" in result.stderr
+    cff = yaml.safe_load((repo_root / "CITATION.cff").read_text(encoding="utf-8"))
+
+    assert cff.get("doi") == "10.5281/zenodo.21473596"
+    assert cff.get("version") == "0.1.0"
+    assert cff.get("date-released") is not None
+    assert cff.get("commit")
+
+
+def test_readme_bibtex_fields_are_braced(repo_root):
+    """Every BibTeX field value must be brace-delimited.
+
+    Regression: the release placeholders were written so that their own
+    delimiters doubled as the BibTeX braces. Resolving one to a bare URL then
+    produced ``url = https://...``, which is not valid BibTeX and would have
+    failed in a reader's reference manager rather than in this repository.
+
+    Checks the opening delimiter only, since values may span lines.
+    """
+    readme = (repo_root / "README.md").read_text(encoding="utf-8")
+    block = readme.split("```bibtex")[1].split("```")[0]
+
+    for line in block.splitlines():
+        stripped = line.strip()
+        if "=" not in line or stripped.startswith(("@", "}")):
+            continue
+        value = line.split("=", 1)[1].strip()
+        assert value.startswith("{"), f"unbraced BibTeX field: {stripped}"
 
 
 def test_canonical_paper_url_is_resolved(repo_root):

@@ -12,14 +12,21 @@
 | `.zenodo.json` added and reconciled with `CITATION.cff` | Done (asserted by tests) |
 | Extended private boundary scan | Done — 70 terms, clean |
 | Pushed, CI verified green | Done |
-| Publication landing page complete | **Pending** — see criteria below |
-| Zenodo enabled, release created, DOI minted | Pending |
-| DOI written back into repository, paper, and landing page | Pending |
+| Publication landing page complete | Done — see criteria below |
+| Zenodo enabled, release created, DOI minted | Done — `v0.1.0` archived 2026-07-21 |
+| DOI written back into repository and paper | Done |
+| DOI added to the publication landing page | **Pending** — owner action in Webflow |
 | Final publication audit from an external reader's perspective | Pending |
 
-`python scripts/validate_release_metadata.py` passes. The DOI gate,
-`--require-doi`, reports 9 unresolved `{{ARCHIVE_DOI}}` occurrences and is the
-post-archive check.
+Both gates now pass: `python scripts/validate_release_metadata.py` and the
+post-archive gate `--require-doi`.
+
+**DOIs.** Two exist and they are used for different purposes. The **concept
+DOI** `10.5281/zenodo.21473596` always resolves to the newest version and is
+what `CITATION.cff`, the README, and the paper cite, so a citation reaches
+current work. The **version DOI** `10.5281/zenodo.21473597` pins v0.1.0
+exactly and is what this document and the changelog record, so a specific
+archived artifact remains identifiable.
 
 ## Publication landing page criteria
 
@@ -52,20 +59,24 @@ would have to be deleted and recreated.
 ## Pre-release state
 
 The repository is currently pre-release, and several values that only exist once
-a release exists are held as explicit placeholders:
+a release existed were held as explicit `{{PLACEHOLDER}}` tokens until each
+became knowable. All four are now resolved:
 
-| Placeholder | Resolved when |
-|---|---|
-| `https://github.com/m8strategies/executable-trust-reference` | The public repository is created |
-| `v0.1.0` | The first release is tagged |
-| `https://www.m8strategies.com/blog/executable-trust` | The paper has a stable public location |
-| `{{ARCHIVE_DOI}}` | The tagged release has been deposited with an archive |
+| Placeholder | Resolved to | Resolved when |
+|---|---|---|
+| `REPOSITORY_URL` | https://github.com/m8strategies/executable-trust-reference | The public repository was created |
+| `RELEASE_TAG` | `v0.1.0` | The first release was tagged |
+| `CANONICAL_PAPER_URL` | https://www.m8strategies.com/blog/executable-trust | The paper reached a stable public location |
+| `ARCHIVE_DOI` | `10.5281/zenodo.21473596` (concept) · `10.5281/zenodo.21473597` (v0.1.0) | Zenodo ingested the tagged release |
 
-These are unresolved **by design**, not by oversight. A placeholder is visible,
+They were unresolved **by design**, not by oversight. A placeholder is visible,
 greppable, and machine-checkable. The alternative — a plausible-looking URL, a
 guessed tag, or an invented DOI written now and corrected later — is the failure
 mode this convention exists to prevent, because a wrong-but-plausible identifier
-survives review in a way `https://github.com/m8strategies/executable-trust-reference` never does.
+survives review in a way a `{{PLACEHOLDER}}` token never does.
+
+The convention stays in place for future releases: a new version reintroduces
+`RELEASE_TAG` and `ARCHIVE_DOI` until its own release is tagged and archived.
 
 The consequence is a deliberate split in what the checks assert:
 
@@ -209,11 +220,11 @@ The tag and the package version must agree. A citation resolves to a tag; a
 dependency resolves to a version; a reader who finds them disagreeing cannot
 tell which artifact the paper's numbers came from.
 
-### 7. Archive the release and resolve `{{ARCHIVE_DOI}}`
+### 7. Archive the release and resolve `ARCHIVE_DOI`
 
 Deposit the tagged release with an archive service to obtain a DOI, then replace
-every `{{ARCHIVE_DOI}}` occurrence — including the `doi` field in
-`CITATION.cff` — and re-run:
+every `ARCHIVE_DOI` occurrence — including the `doi` field in `CITATION.cff` —
+and re-run:
 
 ```
 python scripts/validate_release_metadata.py --require-doi

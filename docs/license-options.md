@@ -262,7 +262,7 @@ The comparison above does not resolve the decision. These do.
    specific one, as a condition of publication or of an artifact-evaluation
    badge. Check before choosing, because this constraint overrides preference.
 5. **Does this repository need to be citable and archivable?** The release
-   process depends on obtaining `{{ARCHIVE_DOI}}` from an archive service, and
+   process depends on obtaining a DOI from an archive service, and
    some archives require an open licence to accept a deposit. If a DOI is
    required, that narrows the options.
 6. **What is the intended relationship between this artifact and any future

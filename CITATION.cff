@@ -40,11 +40,11 @@ url: "https://github.com/m8strategies/executable-trust-reference"
 
 license: Apache-2.0
 
-# Resolved at release. See docs/release-process.md. The DOI is minted by Zenodo
-# once the v0.1.0 GitHub release is ingested, so it cannot be filled in advance.
-# doi: "{{ARCHIVE_DOI}}"
-# commit: <resolved at release>
-# date-released: <resolved at release>
+# Concept DOI: always resolves to the newest version, so a citation reaches
+# current work. The v0.1.0 version DOI is 10.5281/zenodo.21473597.
+doi: "10.5281/zenodo.21473596"
+commit: "d42aa4779a31f8faa2116585f8f092e67dadb001"
+date-released: "2026-07-21"
 
 references:
   - type: report

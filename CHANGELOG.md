@@ -5,22 +5,23 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Version **0.1.0 is unreleased**. No tag has been cut, and `v0.1.0`
-remains unresolved; `{{ARCHIVE_DOI}}`, `https://github.com/m8strategies/executable-trust-reference`, and
-`https://www.m8strategies.com/blog/executable-trust` are likewise unresolved placeholders that must be
-replaced before publication. Until a release exists, everything below is under
-`Unreleased`.
+Version **0.1.0 is released**. Tagged `v0.1.0`, published on GitHub, and
+archived on Zenodo with version DOI `10.5281/zenodo.21473597` (concept DOI
+`10.5281/zenodo.21473596`). The companion paper is published at
+https://www.m8strategies.com/blog/executable-trust.
 
-License: not yet selected — see `docs/license-options.md`.
+Licensed under the Apache License, Version 2.0.
+
+## [0.1.0] - 2026-07-21
 
 ### Release preparation
 
 - Licensed under the Apache License, Version 2.0. Declared as a PEP 639 license
   expression in `pyproject.toml`; the superseded `License ::` classifier is
   deliberately absent, since setuptools rejects a build carrying both.
-- Repository URL and release tag resolved. `https://www.m8strategies.com/blog/executable-trust` and
-  `{{ARCHIVE_DOI}}` remain unresolved by design: the paper is not yet published
-  and Zenodo mints the DOI only after a release is ingested.
+- All publication placeholders resolved: repository URL, release tag `v0.1.0`,
+  canonical paper URL, and the archive DOI. The DOI was resolved last, since
+  Zenodo mints one only after a release is ingested.
 - Added `.zenodo.json`. Its title, version, licence, author, keywords, and
   paper relationship are asserted to agree with `CITATION.cff` by test, because
   two files describing one artifact is exactly the shape that drifts.
@@ -35,7 +36,6 @@ License: not yet selected — see `docs/license-options.md`.
   which then matches innocent prose. A scanner that cries wolf is one people
   learn to ignore, so identifiers are now matched literally and word-bounded.
 
-## [Unreleased]
 
 Initial reference implementation of the mechanisms described in *Executable
 Trust: The Runtime Architecture of Production-Ready Enterprise AI* (Moataz
@@ -125,3 +125,5 @@ no network access, no database, and no cloud credentials.
 - All fixtures, actors, organizations, and policy texts are synthetic.
 
 [Unreleased]: https://github.com/m8strategies/executable-trust-reference
+
+[0.1.0]: https://github.com/m8strategies/executable-trust-reference/releases/tag/v0.1.0
