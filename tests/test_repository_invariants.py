@@ -244,22 +244,71 @@ def test_reports_contain_no_timestamp(repo_root):
 # ---------------------------------------------------------------------------
 
 
-def test_release_validation_blocks_while_placeholders_remain(repo_root):
-    """Ordinary CI passes with placeholders; the release gate must not.
-
-    This is the check that stops an incomplete artifact being tagged, archived,
-    or cited.
-    """
-    result = subprocess.run(
-        [sys.executable, str(repo_root / "scripts" / "validate_release_metadata.py")],
+def _run_release_validation(repo_root, *args):
+    return subprocess.run(
+        [sys.executable, str(repo_root / "scripts" / "validate_release_metadata.py"), *args],
         cwd=repo_root,
         capture_output=True,
         text=True,
     )
 
+
+def test_release_validation_passes_before_the_doi_exists(repo_root):
+    """Pre-DOI release preparation is intentionally allowed.
+
+    A DOI is minted by the archive service *after* a release exists, so
+    requiring one unconditionally would make the first release impossible.
+    Every other publication field must already be resolved for this to pass.
+    """
+    result = _run_release_validation(repo_root)
+
+    assert result.returncode == 0, result.stderr
+    assert "release metadata is complete" in result.stdout
+
+
+def test_release_validation_blocks_on_an_unresolved_doi(repo_root):
+    """--require-doi is the gate for the post-archive step.
+
+    Run after Zenodo ingests the release. Until the DOI is written back into
+    the metadata and the paper, this must refuse.
+    """
+    result = _run_release_validation(repo_root, "--require-doi")
+
     assert result.returncode == 1
     assert "RELEASE VALIDATION FAILED" in result.stderr
-    assert "unresolved" in result.stderr
+    assert "{{ARCHIVE_DOI}}" in result.stderr
+
+
+def test_canonical_paper_url_is_resolved(repo_root):
+    """The paper is published, so no canonical-URL placeholder may remain.
+
+    Scans tracked files rather than a fixed list, so a new file reintroducing
+    the placeholder is caught.
+    """
+    result = subprocess.run(["git", "ls-files"], cwd=repo_root, capture_output=True, text=True)
+    offenders = []
+    for name in result.stdout.splitlines():
+        path = repo_root / name
+        if path.suffix.lower() not in {".md", ".yaml", ".yml", ".json", ".toml", ".cff", ".py"}:
+            continue
+        if not path.is_file():
+            continue
+        if "{{CANONICAL" + "_PAPER_URL}}" in path.read_text(encoding="utf-8"):
+            offenders.append(name)
+
+    assert not offenders, f"unresolved canonical paper URL in: {offenders}"
+
+
+def test_canonical_paper_url_is_the_publication_venue(repo_root):
+    """The paper's canonical location is the publication page, not this repository.
+
+    Guards against the repository drifting into describing itself as where the
+    paper lives. They are different artifacts with different roles.
+    """
+    readme = (repo_root / "README.md").read_text(encoding="utf-8")
+
+    assert "https://www.m8strategies.com/blog/executable-trust" in readme
+    assert "not** the canonical" in readme or "not the canonical" in readme
 
 
 def test_citation_metadata_is_present_and_parses(repo_root):

@@ -91,7 +91,7 @@ no cloud credentials. Python 3.11 or later. The only runtime dependencies are
   in both directions), `scripts/validate_publication_boundary.py`, and
   `scripts/validate_release_metadata.py`.
 
-Entry points: `make all`, `pytest`, `python evaluation/run_baseline.py`, and the
+Entry points: `make all`, `pytest`, `python evaluation/run_baseline.py --check`, and the
 four validator scripts.
 
 ## What is excluded, and why

@@ -17,7 +17,7 @@
 | DOI written back into metadata and paper | Pending |
 
 `python scripts/validate_release_metadata.py` currently reports 7 blockers, all
-`{{CANONICAL_PAPER_URL}}`. That is the expected state until the paper is
+`https://www.m8strategies.com/blog/executable-trust`. That is the expected state until the paper is
 published.
 
 
@@ -38,7 +38,7 @@ a release exists are held as explicit placeholders:
 |---|---|
 | `https://github.com/m8strategies/executable-trust-reference` | The public repository is created |
 | `v0.1.0` | The first release is tagged |
-| `{{CANONICAL_PAPER_URL}}` | The paper has a stable public location |
+| `https://www.m8strategies.com/blog/executable-trust` | The paper has a stable public location |
 | `{{ARCHIVE_DOI}}` | The tagged release has been deposited with an archive |
 
 These are unresolved **by design**, not by oversight. A placeholder is visible,
@@ -90,7 +90,7 @@ provisional. The gate failing is the gate working.
    cloned it.
 
 4. **Committed baseline reports are current.** The validator re-runs
-   `evaluation/run_baseline.py --check`, which regenerates the reports and
+   `evaluation/run_baseline.py --check`, which recomputes the reports in memory and
    compares them against what is committed. Because reports are required to be
    byte-for-byte reproducible — no run-time timestamps, no randomness, no
    unordered iteration reaching serialized output, no absolute paths or
@@ -141,7 +141,7 @@ runs in `make all` and as a pre-commit hook, but the push that makes the
 repository public is the point at which a boundary violation stops being
 reversible.
 
-### 3. Resolve `{{CANONICAL_PAPER_URL}}`
+### 3. Resolve `https://www.m8strategies.com/blog/executable-trust`
 
 Replace every occurrence with the paper's stable public location. Do this only
 once that location is stable and will not be superseded — a canonical URL that
@@ -152,7 +152,7 @@ later moves is worse than a placeholder, because nothing will flag it.
 Run:
 
 ```
-python evaluation/run_baseline.py
+python evaluation/run_baseline.py          # regenerate (writes reports/)
 ```
 
 This rewrites `reports/reference-baseline.md` and

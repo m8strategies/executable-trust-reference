@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Version **0.1.0 is unreleased**. No tag has been cut, and `v0.1.0`
 remains unresolved; `{{ARCHIVE_DOI}}`, `https://github.com/m8strategies/executable-trust-reference`, and
-`{{CANONICAL_PAPER_URL}}` are likewise unresolved placeholders that must be
+`https://www.m8strategies.com/blog/executable-trust` are likewise unresolved placeholders that must be
 replaced before publication. Until a release exists, everything below is under
 `Unreleased`.
 
@@ -18,7 +18,7 @@ License: not yet selected — see `docs/license-options.md`.
 - Licensed under the Apache License, Version 2.0. Declared as a PEP 639 license
   expression in `pyproject.toml`; the superseded `License ::` classifier is
   deliberately absent, since setuptools rejects a build carrying both.
-- Repository URL and release tag resolved. `{{CANONICAL_PAPER_URL}}` and
+- Repository URL and release tag resolved. `https://www.m8strategies.com/blog/executable-trust` and
   `{{ARCHIVE_DOI}}` remain unresolved by design: the paper is not yet published
   and Zenodo mints the DOI only after a release is ingested.
 - Added `.zenodo.json`. Its title, version, licence, author, keywords, and

@@ -23,7 +23,7 @@
   "related_identifiers": [
     {
       "relation": "isSupplementTo",
-      "identifier": "{{CANONICAL_PAPER_URL}}",
+      "identifier": "https://www.m8strategies.com/blog/executable-trust",
       "scheme": "url",
       "resource_type": "publication-report"
     },

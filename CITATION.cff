@@ -55,7 +55,7 @@ references:
       - family-names: Mahmoud
         given-names: Moataz
         affiliation: M8 Strategies
-    url: "{{CANONICAL_PAPER_URL}}"
+    url: "https://www.m8strategies.com/blog/executable-trust"
     abstract: >-
       A reference white paper arguing that enterprise trust is an executable
       runtime capability rather than a document, defining it by four properties

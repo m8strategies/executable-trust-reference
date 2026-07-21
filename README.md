@@ -3,8 +3,16 @@
 Companion artifact to ***Executable Trust: The Runtime Architecture of
 Production-Ready Enterprise AI*** by Moataz Mahmoud, M8 Strategies.
 
-Paper: {{CANONICAL_PAPER_URL}} · Repository: https://github.com/m8strategies/executable-trust-reference · Release:
-v0.1.0 · Archive DOI: {{ARCHIVE_DOI}}
+| Artifact | Role | Location |
+|---|---|---|
+| **Paper** | Specification and research argument. The authoritative publication. | [https://www.m8strategies.com/blog/executable-trust](https://www.m8strategies.com/blog/executable-trust) |
+| **Repository** | Independent reference implementation of the paper's mechanisms. | [https://github.com/m8strategies/executable-trust-reference](https://github.com/m8strategies/executable-trust-reference) |
+| **Zenodo record** | Archived, citable software release. | DOI: `{{ARCHIVE_DOI}}` (minted on release ingest) |
+
+Release: `v0.1.0`
+
+This repository is the companion implementation. It is **not** the canonical
+location of the paper; the paper is published at the address above.
 
 ---
 
@@ -190,8 +198,13 @@ pytest -m regression    # documented failure modes only
 ## Baseline reproduction
 
 ```bash
-python evaluation/run_baseline.py            # writes reports/
-python evaluation/run_baseline.py --check    # verify committed reports are current
+# Verify the committed baseline is current (this is what CI runs, and what a
+# reader reproducing the published result should use).
+python evaluation/run_baseline.py --check
+
+# Regenerate the committed reports. Only after a deliberate behaviour change,
+# and the result must be committed alongside it.
+python evaluation/run_baseline.py
 ```
 
 Reports are byte-identical across runs: no timestamps, no durations, no git
@@ -257,7 +270,7 @@ Cite both the software and the paper.
                  Production-Ready Enterprise AI},
   institution = {M8 Strategies},
   type        = {Reference White Paper},
-  url         = {{CANONICAL_PAPER_URL}}
+  url         = https://www.m8strategies.com/blog/executable-trust
 }
 ```
 
