@@ -8,26 +8,46 @@
 | Paper and repository guard order aligned | Done |
 | Repository URL resolved | Done — `https://github.com/m8strategies/executable-trust-reference` |
 | Release tag resolved | Done — `v0.1.0` |
+| Canonical paper URL resolved | Done — `https://www.m8strategies.com/blog/executable-trust` |
 | `.zenodo.json` added and reconciled with `CITATION.cff` | Done (asserted by tests) |
 | Extended private boundary scan | Done — 70 terms, clean |
-| First commit reviewed locally | Pending |
-| Pushed, CI verified | Pending |
-| Canonical paper URL | **Pending** — blocks release validation |
+| Pushed, CI verified green | Done |
+| Publication landing page complete | **Pending** — see criteria below |
 | Zenodo enabled, release created, DOI minted | Pending |
-| DOI written back into metadata and paper | Pending |
+| DOI written back into repository, paper, and landing page | Pending |
+| Final publication audit from an external reader's perspective | Pending |
 
-`python scripts/validate_release_metadata.py` currently reports 7 blockers, all
-`https://www.m8strategies.com/blog/executable-trust`. That is the expected state until the paper is
-published.
+`python scripts/validate_release_metadata.py` passes. The DOI gate,
+`--require-doi`, reports 9 unresolved `{{ARCHIVE_DOI}}` occurrences and is the
+post-archive check.
 
+## Publication landing page criteria
 
-This repository is published alongside the paper *Executable Trust: The Runtime
-Architecture of Production-Ready Enterprise AI*. Publication is therefore not
-only a software release: the repository must be citable, archivable, and
-consistent with a paper that references its paths.
+The canonical page is the publication *landing page*, not the paper. The paper
+is delivered as a downloadable PDF. Rendering the full body as HTML is not
+required.
 
-The process below is enforced by `scripts/validate_release_metadata.py`, which
-is expected to **fail** in the repository's current state.
+The page is considered complete when it carries:
+
+- Paper title
+- Author
+- Executive summary
+- Download PDF
+- Link to the GitHub reference implementation
+- Citation guidance
+- Keywords
+- M8 Strategies attribution
+
+The reason this gates Zenodo rather than following it: the archived record
+declares `isSupplementTo` the canonical page, and a DOI is permanent. The
+relationship should resolve to a complete landing page from the moment it is
+minted.
+
+## Ordering constraint
+
+Zenodo only archives releases from repositories enabled **beforehand**. Enable
+the repository first; a tag created before enabling will not be ingested and
+would have to be deleted and recreated.
 
 ## Pre-release state
 
