@@ -21,8 +21,19 @@ on:
         default: false
   push:
     tags: ["v*"]
-  release:
-    types: [published]
+
+# There is deliberately no `release` trigger. A release in this repository is
+# always cut from a tag that was pushed first, so the tag-push trigger above
+# already runs this identical validation against the identical commit — a
+# release trigger would only duplicate it.
+#
+# It was removed rather than repaired. gitleaks-action rejects the `release`
+# event outright ("The [release] event is not yet supported"), and the
+# alternative fix — guarding that one step with
+# `if: github.event_name != 'release'` — would have produced a release-triggered
+# run that skips secret scanning while reporting green. A check that asserts
+# less than it appears to is the precise failure mode this repository exists to
+# prevent, so the weaker-but-greener option was the wrong one.
 
 permissions:
   contents: read

@@ -3,16 +3,24 @@
 Companion artifact to ***Executable Trust: The Runtime Architecture of
 Production-Ready Enterprise AI*** by Moataz Mahmoud, M8 Strategies.
 
-| Artifact | Role | Location |
-|---|---|---|
-| **Paper** | Specification and research argument. The authoritative publication. | [https://www.m8strategies.com/blog/executable-trust](https://www.m8strategies.com/blog/executable-trust) |
-| **Repository** | Independent reference implementation of the paper's mechanisms. | [https://github.com/m8strategies/executable-trust-reference](https://github.com/m8strategies/executable-trust-reference) |
-| **Zenodo record** | Archived, citable software release. | [`10.5281/zenodo.21473596`](https://doi.org/10.5281/zenodo.21473596) (all versions) |
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21473596.svg)](https://doi.org/10.5281/zenodo.21473596)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-Release: `v0.1.0`
+## Publication
 
-This repository is the companion implementation. It is **not** the canonical
-location of the paper; the paper is published at the address above.
+| | |
+|---|---|
+| **Paper** | [Executable Trust: The Runtime Architecture of Production-Ready Enterprise AI](https://www.m8strategies.com/blog/executable-trust) |
+| **Release** | [v0.1.0](https://github.com/m8strategies/executable-trust-reference/releases/tag/v0.1.0) |
+| **Archive** | [10.5281/zenodo.21473596](https://doi.org/10.5281/zenodo.21473596) — all versions · [10.5281/zenodo.21473597](https://doi.org/10.5281/zenodo.21473597) — v0.1.0 |
+
+The three are distinct artifacts. The **paper** is the specification and the
+research argument, and is the authoritative publication. This **repository** is
+an independent reference implementation of the mechanisms it describes. The
+**Zenodo record** is an archived, citable snapshot of a software release.
+
+This repository is not the canonical location of the paper. See
+[Citation](#citation) for how to cite each.
 
 ---
 
