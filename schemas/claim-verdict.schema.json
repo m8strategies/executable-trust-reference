@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/claim-verdict.schema.json",
+  "title": "Claim Verdict",
+  "description": "A single decomposed claim and its classification against the evidence retrieved for one request. `verdict` is reserved exclusively for this claim-level category; decision-level explanations use `reason_code` instead. There is deliberately no fourth verdict where confident phrasing earns a pass, and no default value for a missing verdict.",
+  "type": "object",
+  "required": ["text", "verdict"],
+  "additionalProperties": false,
+  "properties": {
+    "text": {
+      "description": "The claim as decomposed from the candidate answer.",
+      "type": "string",
+      "minLength": 1
+    },
+    "verdict": {
+      "description": "SUPPORTED: entailed by a retrieved evidence item. UNSUPPORTED: not entailed by any retrieved evidence item. CONTRADICTED: a retrieved evidence item asserts the opposite.",
+      "enum": ["SUPPORTED", "UNSUPPORTED", "CONTRADICTED"]
+    },
+    "evidence_ref": {
+      "description": "Identifier of the evidence item entailing this claim. Present only for SUPPORTED claims; constructed by iterating retrieved evidence, so a reference to an item that was not retrieved is structurally impossible.",
+      "type": ["string", "null"]
+    },
+    "states_scope_limitation": {
+      "description": "True when this claim explicitly states what the evidence does not cover. Drives BOUNDED strategy selection. Absent is treated as false, which selects the more assertive DIRECT strategy only when no claim states a limitation.",
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

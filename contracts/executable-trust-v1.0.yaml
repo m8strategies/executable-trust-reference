@@ -1,0 +1,431 @@
+# =============================================================================
+# Executable Trust — Reference Trust Contract
+#
+# Layer 1 of the trust stack: the single versioned document that defines,
+# operationally, what "trustworthy output" means for this system.
+#
+# This file is the source of truth for the runtime decision function, the
+# offline evaluation harness, and the contract validator. If any two of those
+# three disagree on a case, one of them has a defect — not a difference of
+# opinion — because all three implement this document.
+#
+# Every executable rule below carries a stable `id`. Every `id` must map to at
+# least one test; `scripts/validate_traceability.py` fails the build otherwise.
+#
+# SYNTHETIC: every threshold in this file is a reference value chosen for the
+# public artifact. It is not a production configuration.
+# =============================================================================
+
+contract_id: executable-trust-reference
+version: "1.0"
+title: Executable Trust Reference Contract
+ratification:
+  # Only a ratified contract may govern a decision (Layer 1 / Layer 4).
+  # A contract in any other status fails closed at resolution time.
+  status: ratified          # draft | ratified | superseded | expired
+  ratified_on: "2026-01-01"
+  ratified_by: reference-maintainer
+  effective_from: "2026-01-01T00:00:00Z"
+  # Amendments applied to this version, in order. See contracts/amendments/.
+  amendments: []
+
+# -----------------------------------------------------------------------------
+# Controlled vocabulary
+#
+# `verdict` is reserved exclusively for claim-level classification.
+# `reason_code` carries every decision-level explanation.
+# These are two separate semantic categories and are never mixed.
+# -----------------------------------------------------------------------------
+vocabulary:
+  claim_verdicts:
+    - SUPPORTED       # entailed by an evidence item retrieved for this request
+    - UNSUPPORTED     # not entailed by any retrieved evidence item
+    - CONTRADICTED    # a retrieved evidence item asserts the opposite
+
+  decision_outcomes:
+    - GROUNDED        # every presented statement is supported by evidence
+    - REFUSED         # the system declines to answer from governed evidence
+
+  response_strategies:
+    - DIRECT          # grounded, nothing to bound
+    - BOUNDED         # grounded, and explicitly states what evidence does not cover
+
+  # The outcome/strategy relationship is structural, not conventional.
+  # REFUSED is an outcome. It is deliberately NOT also a strategy: duplicating
+  # it across both categories would blur two separate semantic axes.
+  outcome_strategy_relation:
+    - id: ET-OUT-001
+      rule: outcome_grounded_requires_strategy
+      statement: >-
+        A GROUNDED outcome must carry a response strategy of DIRECT or BOUNDED.
+    - id: ET-OUT-002
+      rule: outcome_refused_forbids_strategy
+      statement: >-
+        A REFUSED outcome must not carry a response strategy. Absence is the
+        correct representation; a third "refusal" strategy would duplicate the
+        outcome.
+    - id: ET-OUT-003
+      rule: outcome_refused_requires_reason_code
+      statement: >-
+        A REFUSED outcome must carry a controlled reason code drawn from
+        reason-codes-v1.0.yaml. An uncontrolled or absent code fails closed.
+
+# -----------------------------------------------------------------------------
+# Layer 2 — Evidence sufficiency (enforced before generation)
+# -----------------------------------------------------------------------------
+evidence:
+  gate:
+    id: ET-EV-001
+    min_similarity_score: 0.35
+    min_chunks_required: 1
+    top_k: 4
+    statement: >-
+      Answer only when retrieved evidence quality clears a minimum bar. The
+      refusal is pre-generation: when the gate fails, the generator is never
+      invoked.
+    refusal_reason_code: insufficient_evidence
+
+  provenance:
+    id: ET-EV-002
+    required: true
+    permitted_sources:
+      - governed_corpus
+      - governed_record
+    statement: >-
+      Every evidence item must declare a provenance drawn from the permitted
+      set. Evidence with missing or unrecognized provenance is not evidence;
+      the request fails closed before generation.
+    refusal_reason_code: evidence_provenance_invalid
+
+  quality_labels:
+    - sufficient
+    - insufficient
+    - empty
+
+# -----------------------------------------------------------------------------
+# Layer 2 — Verification rules (the decision function, in order)
+#
+# The order below is the order the decision function evaluates. It is part of
+# the contract, not an implementation detail: reordering changes which reason
+# code a request receives, and reason codes are the audit surface.
+# -----------------------------------------------------------------------------
+verification:
+  fail_closed: true
+
+  required_claim_fields:
+    - text
+    - verdict
+  statement_on_missing_fields: >-
+    A claim missing a required field is malformed verifier output. It fails
+    closed. There is deliberately no default value for any required field: a
+    default that lets an unchecked claim through is the fail-open edge this
+    contract exists to prevent.
+
+  rules:
+    - id: ET-VER-001
+      rule: empty_claim_set_refuses
+      reason_code: empty_claim_set
+      statement: >-
+        An empty claim collection never yields a grounded answer. A degenerate
+        verifier response that decomposes an answer into zero claims has
+        verified nothing.
+
+    - id: ET-VER-002
+      rule: missing_verdict_refuses
+      reason_code: missing_claim_verdict
+      statement: >-
+        A claim with no verdict field fails closed. It is never treated as
+        supported.
+
+    - id: ET-VER-003
+      rule: unknown_verdict_refuses
+      reason_code: unknown_claim_verdict
+      statement: >-
+        A claim whose verdict is outside the controlled vocabulary fails
+        closed. Unknown is not a synonym for acceptable.
+
+    - id: ET-VER-005
+      rule: no_supported_claims_refuses
+      reason_code: no_supported_claims
+      statement: >-
+        A GROUNDED outcome requires at least one SUPPORTED claim. When no claim
+        is supported, the answer is refused under this code rather than under
+        `unsupported_claim`, so telemetry distinguishes an answer nothing
+        supported from an answer that was partly supportable.
+
+    - id: ET-VER-004
+      rule: unsupported_or_contradicted_refuses
+      reason_code: unsupported_claim
+      statement: >-
+        If any claim is UNSUPPORTED or CONTRADICTED, the system must not
+        present the answer as fact. The answer is refused, never repaired in
+        place (see amendment v1.0-A1). Evaluated after ET-VER-005, so this code
+        always denotes a partially supported answer.
+
+    - id: ET-VER-006
+      rule: irrelevant_answer_refuses
+      reason_code: does_not_address_question
+      statement: >-
+        A truthful statement that does not address the question is not an
+        answer. It is refused rather than presented as one.
+
+    - id: ET-VER-007
+      rule: strategy_selection
+      statement: >-
+        A substantive supported answer is GROUNDED. Its strategy is BOUNDED if
+        it states a scope limitation, otherwise DIRECT.
+
+    - id: ET-VER-008
+      rule: malformed_output_refuses
+      reason_code: malformed_verifier_output
+      statement: >-
+        Verifier output that cannot be parsed into the contract's claim shape
+        fails closed.
+
+    - id: ET-VER-009
+      rule: verifier_exception_refuses
+      reason_code: verifier_error
+      statement: >-
+        Any exception raised by the verification mechanism fails closed. A
+        verifier that fails open is a false sense of safety.
+
+    - id: ET-VER-010
+      rule: verifier_timeout_refuses
+      reason_code: verifier_timeout
+      statement: >-
+        A verification call that exceeds its budget fails closed.
+
+    - id: ET-VER-011
+      rule: truncated_output_refuses
+      reason_code: verifier_output_truncated
+      statement: >-
+        Verifier output cut off at a token or size cap is unusable and fails
+        closed under a reason code distinct from a general error, so telemetry
+        separates capacity problems from genuine faults.
+
+  budget:
+    # Illustrative, per the paper's operational-targets table. Enforced by the
+    # deterministic verifier only as a declared budget; the reference
+    # implementation performs no network I/O.
+    call_budget_ms_p50: 400
+
+# -----------------------------------------------------------------------------
+# Layer 2 — Authorization (enforced before retrieval)
+# -----------------------------------------------------------------------------
+authorization:
+  - id: ET-AUTH-001
+    rule: authorization_precedes_retrieval
+    reason_code: authorization_denied
+    statement: >-
+      Authorization is evaluated before retrieval and before generation. A
+      denied request exits before any evidence is read; refusing early is
+      cheaper, safer, and more honest than generating and discarding.
+
+# -----------------------------------------------------------------------------
+# Layer 1 — Contract resolution
+# -----------------------------------------------------------------------------
+contract_resolution:
+  - id: ET-CON-001
+    rule: unknown_version_fails_closed
+    reason_code: contract_version_unknown
+    statement: >-
+      A request naming a contract version this implementation does not carry
+      is refused. The binary never guesses which rules applied.
+
+  - id: ET-CON-002
+    rule: unratified_contract_cannot_govern
+    reason_code: contract_not_ratified
+    statement: >-
+      Only a contract whose ratification status is `ratified` may govern a
+      decision. Draft, superseded, and expired contracts fail closed.
+
+  - id: ET-CON-003
+    rule: malformed_contract_fails_validation
+    reason_code: contract_unresolved
+    statement: >-
+      A contract that does not validate against schemas/trust-contract.schema.json
+      cannot be loaded, and no decision may be made under it.
+
+  - id: ET-CON-004
+    rule: uncontrolled_reason_code_rejected
+    statement: >-
+      Every reason code emitted at runtime must be declared in the controlled
+      reason-code set for the governing contract version. An undeclared code is
+      a contract violation, not a new code.
+
+# -----------------------------------------------------------------------------
+# Layer 5/6 — Telemetry and metrics
+# -----------------------------------------------------------------------------
+telemetry:
+  rules:
+    - id: ET-TEL-001
+      rule: capture_fails_open
+      statement: >-
+        Telemetry capture is secondary to the governed decision. A capture
+        failure is logged and swallowed; the decision is returned unchanged.
+        This is the exact inverse of the enforcement rule, and reversing either
+        direction is a design defect.
+
+    - id: ET-TEL-002
+      rule: population_provenance_required
+      statement: >-
+        Every telemetry event records the environment it came from and whether
+        it describes observed or synthetic activity. Observed metrics exclude
+        every other population by default, so test traffic cannot be aggregated
+        into a number claimed to describe production.
+
+    - id: ET-TEL-003
+      rule: store_facts_not_scores
+      statement: >-
+        Telemetry stores what varies — outcome, strategy, reason code, evidence
+        count, claim counts, verification mechanism, latency, contract version.
+        It stores no confidence score and no correctness field. Under a
+        refuse-anything-imperfect rule a stored confidence is a constant, and a
+        constant displayed as a score is uninformative.
+
+  populations:
+    environments: [production, staging, development, test]
+    classifications: [observed, synthetic]
+    observed_metric_environments: [production]
+
+metrics:
+  - id: ET-TEL-004
+    rule: counts_always_visible
+    statement: >-
+      Counts are never withheld. A consumer can always see how many decisions
+      the window contains.
+
+  - id: ET-TEL-005
+    rule: rates_withheld_below_minimum_sample
+    minimum_sample: 10
+    statement: >-
+      A rate computed from fewer than `minimum_sample` decisions is withheld.
+      The rate key remains present and null, and the payload carries the
+      sample size and threshold so a consumer can explain the withholding
+      rather than render a blank.
+
+  - id: ET-TEL-006
+    rule: runtime_telemetry_makes_no_quality_claim
+    statement: >-
+      Runtime telemetry describes behavior — what the system decided. Quality —
+      how often decisions were correct — is claimed only by the offline
+      evaluation baseline, which has human-authored ground truth. No metric
+      derived from runtime telemetry may be named accuracy or correctness.
+
+# -----------------------------------------------------------------------------
+# Layer 2 — Resilience
+# -----------------------------------------------------------------------------
+resilience:
+  - id: ET-RES-001
+    rule: degrade_to_conservative_verifier
+    fault_rate_threshold: 0.05
+    minimum_observations: 5
+    statement: >-
+      When the primary verification mechanism's observed fault rate exceeds the
+      threshold, the system escalates to a configured conservative mechanism.
+      The breaker may make the system slower or more conservative. It is never
+      permitted to make the system less verified.
+
+  - id: ET-RES-002
+    rule: refuse_when_no_verifier_available
+    reason_code: no_verifier_available
+    statement: >-
+      If no permitted verification mechanism is healthy, the system refuses.
+      Skipping verification to keep answering is prohibited.
+
+# -----------------------------------------------------------------------------
+# Layer 4 — Decision-record lifecycle
+#
+# This is the decision-record axis described in the paper: a generated decision
+# record must be reviewed by an accountable human before it can inform future
+# recommendations. Current state is DERIVED from the append-only transition
+# log; there is no authoritative mutable state field.
+# -----------------------------------------------------------------------------
+lifecycle:
+  states: [PROPOSED, ACCEPTED, REJECTED, SUPERSEDED]
+  initial_state: PROPOSED
+  terminal_states: [REJECTED, SUPERSEDED]
+
+  transitions:
+    - id: ET-LC-001
+      from: PROPOSED
+      to: ACCEPTED
+      requires_human_review: true
+      requires_actor: true
+      requires_role: true
+      requires_reason_code: true
+      statement: >-
+        Acceptance requires an attributable review by an accountable human.
+        A promotion carrying no accountable reviewer is rejected at the
+        persistence boundary, not merely hidden in an interface.
+
+    - id: ET-LC-002
+      from: PROPOSED
+      to: REJECTED
+      requires_human_review: true
+      requires_actor: true
+      requires_role: true
+      requires_reason_code: true
+      statement: >-
+        Rejection requires an attributable review by an accountable human.
+        Rejected records are retained, never deleted, so the organization does
+        not repeat a path it already evaluated and declined.
+
+    - id: ET-LC-003
+      from: ACCEPTED
+      to: SUPERSEDED
+      requires_human_review: false
+      requires_actor: true
+      requires_role: false
+      requires_reason_code: true
+      requires_successor: true
+      statement: >-
+        Supersession is recorded as a new append-only transition referencing
+        the successor decision. The predecessor record is never edited.
+
+  rules:
+    - id: ET-LC-004
+      rule: terminal_states_are_permanent
+      statement: >-
+        No transition leaves a terminal state. A superseded or rejected record
+        is retained as recorded; revisiting the question creates a new record
+        that may cite the old one.
+
+    - id: ET-LC-005
+      rule: undeclared_transition_rejected
+      statement: >-
+        Any transition not declared above is rejected by the domain and by the
+        persistence boundary.
+
+    - id: ET-LC-006
+      rule: decision_payload_immutable
+      statement: >-
+        A decision record's payload is immutable once created. Corrections
+        create a superseding record; nothing is mutated in place.
+
+    - id: ET-LC-007
+      rule: current_state_is_a_projection
+      statement: >-
+        Current state is computed by folding the ordered transition log. No
+        mutable current-state field is authoritative.
+
+# -----------------------------------------------------------------------------
+# Layer 3 — Offline evaluation
+# -----------------------------------------------------------------------------
+evaluation:
+  - id: ET-EVAL-001
+    rule: baseline_gate
+    minimum_pass_rate: 1.0
+    statement: >-
+      The reference baseline is deterministic: the verifier is a deterministic
+      stub and every expected outcome is human-authored, so any divergence
+      between expected and actual behavior is a defect rather than variance.
+      The gate therefore requires a perfect pass rate, and the runner exits
+      non-zero on any divergence.
+
+  - id: ET-EVAL-002
+    rule: offline_owns_correctness
+    statement: >-
+      Only the offline harness, holding human-authored ground truth, judges
+      whether a decision was correct. The runtime records what it decided and
+      never whether that decision was right.

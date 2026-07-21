@@ -1,0 +1,38 @@
+{
+  "title": "Executable Trust Reference Implementation",
+  "version": "0.1.0",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "creators": [
+    {
+      "name": "Mahmoud, Moataz",
+      "affiliation": "M8 Strategies"
+    }
+  ],
+  "description": "<p>An independent reference implementation of the mechanisms described in <em>Executable Trust: The Runtime Architecture of Production-Ready Enterprise AI</em>.</p><p>The artifact implements a versioned trust contract with stable rule identifiers, a pure fail-closed decision function over claim-level verdicts, evidence provenance and sufficiency gates enforced before generation, verification dependency degradation, immutable decision records with an append-only lifecycle log whose current state is derived rather than stored, a ratified contract amendment process, fail-open telemetry with explicit population provenance, sample-size-honest metrics, and a deterministic offline evaluation harness driven by a human-authored synthetic golden set. Every contract rule maps to at least one test, enforced at build time.</p><p>The artifact runs with no model provider, no network access, no database, and no credentials. Every example, fixture, evidence passage, actor, and evaluation case is synthetic and newly authored.</p><p><strong>Scope.</strong> Its design is informed by lessons from a working production enterprise AI platform, while the implementation, examples, contracts, and evaluation data included here are publication-safe and independently reproducible. The repository excludes the commercial platform, proprietary integrations, production prompts, operational data, customer information, and internal deployment architecture.</p><p><strong>Evidence classes.</strong> Results published with this artifact are labelled &quot;Reference implementation synthetic baseline&quot;. They describe this implementation's conformance to its own contract. They are not a measurement of any production system and are not numerically comparable to the field observations reported in the accompanying paper.</p>",
+  "keywords": [
+    "executable trust",
+    "governance as code",
+    "AI governance",
+    "trust contract",
+    "fail-closed verification",
+    "reference implementation",
+    "enterprise AI"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "{{CANONICAL_PAPER_URL}}",
+      "scheme": "url",
+      "resource_type": "publication-report"
+    },
+    {
+      "relation": "isSupplementedBy",
+      "identifier": "https://github.com/m8strategies/executable-trust-reference",
+      "scheme": "url",
+      "resource_type": "software"
+    }
+  ],
+  "notes": "Zenodo mints the archive DOI when the GitHub release is ingested; the DOI is therefore not self-declared in this file. It is written back into CITATION.cff and the paper after ingestion. See docs/release-process.md."
+}

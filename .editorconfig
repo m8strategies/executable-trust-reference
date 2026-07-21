@@ -1,0 +1,36 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.{json,yaml,yml}]
+indent_style = space
+indent_size = 2
+
+[*.{md,markdown}]
+# Trailing whitespace is not significant in this repository's Markdown; hard
+# line breaks are written as explicit blank lines instead.
+trim_trailing_whitespace = true
+
+[Makefile]
+indent_style = tab
+
+[Makefile.*]
+indent_style = tab
+
+[*.mk]
+indent_style = tab
+
+[*.jsonl]
+# One JSON object per line; never reformatted or wrapped.
+indent_style = space
+indent_size = 2

@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/telemetry-event.schema.json",
+  "title": "Telemetry Event",
+  "description": "One append-only record of a governed decision's observable behavior. It stores facts that vary, never a derived score and never a correctness judgement: correctness requires ground truth, which only the offline evaluation harness has. There is deliberately no `confidence` field and no `accuracy` field. Capture is fail-open — a failure to write one of these never alters the decision it describes.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "captured_at",
+    "decision_id",
+    "correlation_id",
+    "outcome",
+    "reason_code",
+    "verification_mechanism",
+    "evidence_count",
+    "claim_counts",
+    "latency_ms",
+    "contract_id",
+    "contract_version",
+    "environment",
+    "population"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "correlation_id": { "type": "string", "minLength": 1 },
+
+    "outcome": { "enum": ["GROUNDED", "REFUSED"] },
+    "strategy": { "enum": ["DIRECT", "BOUNDED", null] },
+    "reason_code": { "type": ["string", "null"] },
+
+    "verification_mechanism": { "type": "string", "minLength": 1 },
+    "evidence_count": { "type": "integer", "minimum": 0 },
+    "evidence_quality": { "enum": ["sufficient", "insufficient", "empty", null] },
+
+    "claim_counts": {
+      "type": "object",
+      "required": ["total", "supported", "unsupported", "contradicted"],
+      "additionalProperties": false,
+      "properties": {
+        "total": { "type": ["integer", "null"], "minimum": 0 },
+        "supported": { "type": ["integer", "null"], "minimum": 0 },
+        "unsupported": { "type": ["integer", "null"], "minimum": 0 },
+        "contradicted": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+
+    "latency_ms": { "type": "integer", "minimum": 0 },
+
+    "contract_id": { "type": "string", "minLength": 1 },
+    "contract_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+
+    "environment": {
+      "description": "Which deployment produced this event. Metrics described as observed aggregate only the environments the contract permits, so test traffic cannot silently enter a production number.",
+      "enum": ["production", "staging", "development", "test"]
+    },
+    "population": {
+      "description": "Whether this event describes real activity or generated activity. Conservative by construction: anything not explicitly observed is synthetic.",
+      "enum": ["observed", "synthetic"]
+    }
+  },
+
+  "allOf": [
+    {
+      "$comment": "ET-OUT-001 / ET-OUT-002 / ET-OUT-003 hold on telemetry exactly as on the decision record.",
+      "if": { "properties": { "outcome": { "const": "GROUNDED" } }, "required": ["outcome"] },
+      "then": {
+        "required": ["strategy"],
+        "properties": { "strategy": { "enum": ["DIRECT", "BOUNDED"] } }
+      }
+    },
+    {
+      "if": { "properties": { "outcome": { "const": "REFUSED" } }, "required": ["outcome"] },
+      "then": {
+        "properties": {
+          "strategy": { "type": "null" },
+          "reason_code": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ],
+
+  "not": {
+    "$comment": "ET-TEL-003: a telemetry event may not carry a score or a correctness judgement. Listed explicitly so the prohibition is machine-checkable rather than a comment.",
+    "anyOf": [
+      { "required": ["confidence"] },
+      { "required": ["confidence_score"] },
+      { "required": ["accuracy"] },
+      { "required": ["correct"] },
+      { "required": ["grounded"] },
+      { "required": ["quality"] }
+    ]
+  }
+}

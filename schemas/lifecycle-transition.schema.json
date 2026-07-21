@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/lifecycle-transition.schema.json",
+  "title": "Lifecycle Transition",
+  "description": "One append-only entry in a decision record's transition log. The log is the authority: current state is derived by folding entries in sequence order, and no mutable current-state field is authoritative anywhere. Attribution lives on the transition, not on the record, so who decided what and when survives independently of the record's content.",
+  "type": "object",
+  "required": [
+    "transition_id",
+    "decision_id",
+    "sequence",
+    "from_state",
+    "to_state",
+    "actor_id",
+    "actor_type",
+    "reason_code",
+    "recorded_at",
+    "contract_id",
+    "contract_version"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "transition_id": { "type": "string", "minLength": 1 },
+    "decision_id": { "type": "string", "minLength": 1 },
+    "sequence": {
+      "description": "Monotonic per decision record. Ordering authority is this sequence, not the timestamp: two transitions recorded in the same clock tick still have a defined order.",
+      "type": "integer",
+      "minimum": 1
+    },
+
+    "from_state": { "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "SUPERSEDED", null] },
+    "to_state": { "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "SUPERSEDED"] },
+
+    "actor_id": { "type": "string", "minLength": 1 },
+    "actor_type": {
+      "description": "A transition requiring accountable human review must be attributed to a principal. A system actor cannot satisfy that requirement.",
+      "enum": ["principal", "system"]
+    },
+    "actor_role": { "type": ["string", "null"] },
+
+    "reason_code": {
+      "description": "Controlled reason code from the governing contract's reason-code set. Free text is never an acceptable substitute for a missing code; the correct response to a missing code is a contract amendment.",
+      "type": "string",
+      "minLength": 1
+    },
+
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "contract_id": { "type": "string", "minLength": 1 },
+    "contract_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+
+    "successor_decision_id": {
+      "description": "Required for a transition to SUPERSEDED. The link is recorded by the successor's transition; the predecessor record itself is never edited.",
+      "type": ["string", "null"]
+    },
+    "note": { "type": ["string", "null"] }
+  },
+
+  "allOf": [
+    {
+      "$comment": "ET-LC-003: supersession must name its successor.",
+      "if": { "properties": { "to_state": { "const": "SUPERSEDED" } }, "required": ["to_state"] },
+      "then": {
+        "required": ["successor_decision_id"],
+        "properties": { "successor_decision_id": { "type": "string", "minLength": 1 } }
+      }
+    },
+    {
+      "$comment": "ET-LC-001 / ET-LC-002: acceptance and rejection are human acts and require an attributed principal with a role.",
+      "if": {
+        "properties": { "to_state": { "enum": ["ACCEPTED", "REJECTED"] } },
+        "required": ["to_state"]
+      },
+      "then": {
+        "required": ["actor_role"],
+        "properties": {
+          "actor_type": { "const": "principal" },
+          "actor_role": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
+}

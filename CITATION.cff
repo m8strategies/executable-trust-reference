@@ -1,0 +1,63 @@
+cff-version: 1.2.0
+title: Executable Trust Reference Implementation
+message: >-
+  If you use this software or refer to it in academic work, please cite both the
+  software and the paper it accompanies.
+type: software
+version: 0.1.0
+
+authors:
+  - family-names: Mahmoud
+    given-names: Moataz
+    affiliation: M8 Strategies
+
+abstract: >-
+  An independent reference implementation of the mechanisms described in
+  "Executable Trust: The Runtime Architecture of Production-Ready Enterprise
+  AI". It provides a versioned trust contract, a fail-closed decision function
+  over claim-level verdicts, an evidence sufficiency gate enforced before
+  generation, immutable decision records with an append-only lifecycle log,
+  a ratified contract amendment process, fail-open telemetry with explicit
+  population provenance, sample-size-honest metrics, and a deterministic offline
+  evaluation harness driven by a human-authored synthetic golden set. The
+  artifact runs with no model provider, no network access, no database, and no
+  credentials. Its design is informed by lessons from a working production
+  enterprise AI platform; the implementation, examples, contracts, and
+  evaluation data included here are publication-safe and independently
+  reproducible.
+
+keywords:
+  - executable trust
+  - governance as code
+  - AI governance
+  - trust contract
+  - fail-closed verification
+  - reference implementation
+  - enterprise AI
+
+repository-code: "https://github.com/m8strategies/executable-trust-reference"
+url: "https://github.com/m8strategies/executable-trust-reference"
+
+license: Apache-2.0
+
+# Resolved at release. See docs/release-process.md. The DOI is minted by Zenodo
+# once the v0.1.0 GitHub release is ingested, so it cannot be filled in advance.
+# doi: "{{ARCHIVE_DOI}}"
+# commit: <resolved at release>
+# date-released: <resolved at release>
+
+references:
+  - type: report
+    title: >-
+      Executable Trust: The Runtime Architecture of Production-Ready Enterprise
+      AI
+    authors:
+      - family-names: Mahmoud
+        given-names: Moataz
+        affiliation: M8 Strategies
+    url: "{{CANONICAL_PAPER_URL}}"
+    abstract: >-
+      A reference white paper arguing that enterprise trust is an executable
+      runtime capability rather than a document, defining it by four properties
+      — versioned, enforced, independently measured, and ratified — and showing
+      how it is built.

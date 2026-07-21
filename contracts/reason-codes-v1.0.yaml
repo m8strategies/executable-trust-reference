@@ -1,0 +1,187 @@
+# =============================================================================
+# Executable Trust — Controlled Reason Codes v1.0
+#
+# A reason code explains a decision. It is a decision-level category and is
+# never a claim-level classification; `verdict` is reserved for claims.
+#
+# Every code below:
+#   - is declared here, in the versioned contract set;
+#   - names the stable rule identifier that emits it;
+#   - maps to at least one test (enforced by scripts/validate_traceability.py).
+#
+# Emitting a code that is not declared here is a contract violation, not a new
+# code. The correct response to a missing code is a contract amendment.
+#
+# `origin` records where the code's name comes from:
+#   paper   — the name appears in executable-trust.md
+#   derived — the paper describes the fail-closed path but does not name a code
+# =============================================================================
+
+reason_code_set_id: executable-trust-reference-reason-codes
+version: "1.0"
+applies_to_contract_version: "1.0"
+
+codes:
+  # ---------------------------------------------------------------------------
+  # Named by the paper
+  # ---------------------------------------------------------------------------
+  - code: unsupported_claim
+    origin: paper
+    rule_id: ET-VER-004
+    applies_to_outcome: REFUSED
+    summary: >-
+      At least one claim was UNSUPPORTED or CONTRADICTED by the evidence
+      retrieved for this request.
+
+  - code: no_supported_claims
+    origin: paper
+    rule_id: ET-VER-005
+    applies_to_outcome: REFUSED
+    summary: >-
+      No claim was SUPPORTED, so there is nothing the system can present as
+      grounded.
+
+  - code: does_not_address_question
+    origin: paper
+    rule_id: ET-VER-006
+    applies_to_outcome: REFUSED
+    summary: >-
+      The claims were supported but none addressed the question asked. A
+      truthful statement about something else is not an answer.
+
+  - code: insufficient_evidence
+    origin: paper
+    rule_id: ET-EV-001
+    applies_to_outcome: REFUSED
+    summary: >-
+      Retrieved evidence did not clear the contract's minimum bar. The refusal
+      is pre-generation.
+
+  # ---------------------------------------------------------------------------
+  # Derived: fail-closed paths the paper describes but does not name
+  # ---------------------------------------------------------------------------
+  - code: empty_claim_set
+    origin: derived
+    rule_id: ET-VER-001
+    applies_to_outcome: REFUSED
+    summary: >-
+      The verifier returned zero claims. Distinguished from
+      `no_supported_claims` so telemetry separates a degenerate verifier
+      response from an answer whose claims were all rejected.
+    rationale: >-
+      The paper's Layer 7 narrative names an empty claim list scored as fully
+      verified as a real fail-open defect. Giving it a distinct code makes the
+      defect class visible in telemetry rather than merged into a broader one.
+
+  - code: missing_claim_verdict
+    origin: derived
+    rule_id: ET-VER-002
+    applies_to_outcome: REFUSED
+    summary: >-
+      A claim omitted its required verdict field. There is no default; a
+      missing required field is malformed output.
+
+  - code: unknown_claim_verdict
+    origin: derived
+    rule_id: ET-VER-003
+    applies_to_outcome: REFUSED
+    summary: >-
+      A claim carried a verdict outside the controlled vocabulary.
+
+  - code: malformed_verifier_output
+    origin: derived
+    rule_id: ET-VER-008
+    applies_to_outcome: REFUSED
+    summary: >-
+      Verifier output could not be parsed into the contract's claim shape.
+
+  - code: verifier_error
+    origin: derived
+    rule_id: ET-VER-009
+    applies_to_outcome: REFUSED
+    summary: >-
+      The verification mechanism raised an exception.
+
+  - code: verifier_timeout
+    origin: derived
+    rule_id: ET-VER-010
+    applies_to_outcome: REFUSED
+    summary: >-
+      The verification call exceeded its declared budget.
+
+  - code: verifier_output_truncated
+    origin: derived
+    rule_id: ET-VER-011
+    applies_to_outcome: REFUSED
+    summary: >-
+      Verifier output was cut off at a size cap. Distinct from `verifier_error`
+      so telemetry separates capacity problems from genuine faults.
+
+  - code: no_verifier_available
+    origin: derived
+    rule_id: ET-RES-002
+    applies_to_outcome: REFUSED
+    summary: >-
+      No permitted verification mechanism was healthy. Verification is never
+      skipped to keep answering.
+
+  - code: authorization_denied
+    origin: derived
+    rule_id: ET-AUTH-001
+    applies_to_outcome: REFUSED
+    summary: >-
+      The actor was not authorized for the requested resource. Evaluated before
+      retrieval, so no evidence was read.
+
+  - code: evidence_provenance_invalid
+    origin: derived
+    rule_id: ET-EV-002
+    applies_to_outcome: REFUSED
+    summary: >-
+      An evidence item declared missing or unrecognized provenance. Evidence
+      whose origin is unknown is not evidence.
+
+  - code: contract_version_unknown
+    origin: derived
+    rule_id: ET-CON-001
+    applies_to_outcome: REFUSED
+    summary: >-
+      The request named a contract version this implementation does not carry.
+
+  - code: contract_not_ratified
+    origin: derived
+    rule_id: ET-CON-002
+    applies_to_outcome: REFUSED
+    summary: >-
+      The resolved contract is not in `ratified` status and may not govern a
+      decision.
+
+  - code: contract_unresolved
+    origin: derived
+    rule_id: ET-CON-003
+    applies_to_outcome: REFUSED
+    summary: >-
+      No governing contract could be resolved for the request.
+
+  # ---------------------------------------------------------------------------
+  # Lifecycle reason codes
+  #
+  # These explain a lifecycle transition, not a verification decision, so they
+  # carry no `applies_to_outcome`.
+  # ---------------------------------------------------------------------------
+  - code: review.accepted
+    origin: derived
+    rule_id: ET-LC-001
+    summary: An accountable reviewer accepted the decision record.
+
+  - code: review.rejected
+    origin: derived
+    rule_id: ET-LC-002
+    summary: An accountable reviewer rejected the decision record.
+
+  - code: supersession.replaced
+    origin: derived
+    rule_id: ET-LC-003
+    summary: >-
+      The decision record was superseded by a newer accepted decision. The
+      original is retained and linked from the successor.

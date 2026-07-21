@@ -1,0 +1,47 @@
+# Pre-commit hooks for executable-trust-reference.
+#
+# The local hooks are the repository's own gates. They run offline, require no
+# credentials, and are the same scripts CI runs. Install with:
+#
+#     pip install pre-commit && pre-commit install
+
+minimum_pre_commit_version: "3.5.0"
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=512"]
+      - id: detect-private-key
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.6
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: publication-boundary
+        name: publication boundary
+        entry: python scripts/validate_publication_boundary.py
+        language: system
+        pass_filenames: false
+
+      - id: contracts
+        name: contract and schema validation
+        entry: python scripts/validate_contracts.py
+        language: system
+        pass_filenames: false
+
+      - id: traceability
+        name: rule-to-test traceability
+        entry: python scripts/validate_traceability.py
+        language: system
+        pass_filenames: false

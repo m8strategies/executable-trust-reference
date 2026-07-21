@@ -1,0 +1,68 @@
+# ---------------------------------------------------------------------------
+# Publication boundary — these paths must never enter the tracked tree.
+# ---------------------------------------------------------------------------
+
+# Private extraction record. Contains private source paths and product names by
+# design; it is the one place they are permitted to appear. Never commit.
+.private/
+
+# Local extension to the publication-boundary term list (additional private
+# service names, hostnames, table names, API prefixes). The public CI carries
+# only a safe base list; the sensitive list stays local.
+.boundary-terms.local.txt
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.installed.cfg
+*.egg
+
+# Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+
+# ---------------------------------------------------------------------------
+# Secrets — nothing in this repository requires credentials. These entries are
+# defense in depth, not an indication that any such file is expected.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.yaml
+
+# ---------------------------------------------------------------------------
+# Editors / OS
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini

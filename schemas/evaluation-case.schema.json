@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/evaluation-case.schema.json",
+  "title": "Evaluation Case",
+  "description": "One human-authored golden case. Every field is synthetic: the questions, evidence, actors, documents and facts are newly authored for this repository against a fictional internal-tooling domain. Expected behavior is authored by a human in advance; that is what makes the harness an independent measurement rather than the system grading its own homework.",
+  "type": "object",
+  "required": [
+    "case_id",
+    "category",
+    "synthetic",
+    "request",
+    "expected_outcome",
+    "applicable_contract_version",
+    "rationale"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "type": "string", "pattern": "^[0-9]{2}-[a-z0-9-]+$" },
+    "category": {
+      "description": "Which mechanism this case exercises. Used for the category breakdown in the baseline report.",
+      "enum": [
+        "grounded-direct",
+        "grounded-bounded",
+        "insufficient-evidence",
+        "unsupported-claim",
+        "contradicted-claim",
+        "no-supported-claims",
+        "empty-claim-set",
+        "irrelevant-answer",
+        "malformed-verifier-output",
+        "verifier-exception",
+        "verifier-timeout",
+        "verifier-output-truncated",
+        "verifier-unavailable",
+        "authorization-denied",
+        "evidence-provenance-invalid",
+        "unknown-contract",
+        "unratified-contract",
+        "near-miss"
+      ]
+    },
+    "synthetic": {
+      "description": "Structurally constant. Every case in this repository is synthetic; the field exists so the property is machine-checkable rather than asserted in prose.",
+      "const": true
+    },
+
+    "request": {
+      "type": "object",
+      "required": ["actor", "resource", "question"],
+      "additionalProperties": false,
+      "properties": {
+        "actor": { "type": "string", "minLength": 1 },
+        "resource": { "type": "string", "minLength": 1 },
+        "question": { "type": "string", "minLength": 1 }
+      }
+    },
+
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "text", "relevance_score", "provenance"],
+        "additionalProperties": false,
+        "properties": {
+          "evidence_id": { "type": "string", "minLength": 1 },
+          "text": { "type": "string", "minLength": 1 },
+          "relevance_score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "provenance": { "type": "string" }
+        }
+      }
+    },
+
+    "candidate_answer": {
+      "description": "The answer the generator would produce. Null for cases that refuse before generation ever runs, where authoring an answer would imply one was produced.",
+      "type": ["string", "null"]
+    },
+
+    "claims": {
+      "description": "Claim verdicts the verifier is scripted to return. Deliberately supplied by the case rather than inferred, so the harness is deterministic and requires no model provider.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["text"],
+        "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string", "minLength": 1 },
+          "verdict": { "type": "string" },
+          "evidence_ref": { "type": ["string", "null"] },
+          "states_scope_limitation": { "type": "boolean" }
+        }
+      }
+    },
+
+    "verifier_behavior": {
+      "description": "Fault to inject into the deterministic verifier for resilience and malformed-output cases.",
+      "enum": ["normal", "raise", "timeout", "malformed", "truncated", "unavailable"]
+    },
+    "answers_question": {
+      "description": "What the verifier reports about relevance. Explicit null models a verifier that omitted the required field, which must fail closed as malformed output rather than defaulting to true.",
+      "type": ["boolean", "null"]
+    },
+
+    "applicable_contract_version": { "type": "string", "minLength": 1 },
+
+    "expected_outcome": { "enum": ["GROUNDED", "REFUSED"] },
+    "expected_strategy": { "enum": ["DIRECT", "BOUNDED", null] },
+    "expected_reason_code": { "type": ["string", "null"] },
+
+    "rationale": {
+      "description": "Why a correct system behaves this way, written by a human before the case was run. This is the ground truth.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+
+  "allOf": [
+    {
+      "$comment": "A case's expectations must themselves obey the outcome/strategy relation, so a malformed expectation cannot enter the golden set.",
+      "if": { "properties": { "expected_outcome": { "const": "GROUNDED" } }, "required": ["expected_outcome"] },
+      "then": {
+        "required": ["expected_strategy"],
+        "properties": { "expected_strategy": { "enum": ["DIRECT", "BOUNDED"] } }
+      }
+    },
+    {
+      "if": { "properties": { "expected_outcome": { "const": "REFUSED" } }, "required": ["expected_outcome"] },
+      "then": {
+        "required": ["expected_reason_code"],
+        "properties": {
+          "expected_strategy": { "type": "null" },
+          "expected_reason_code": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
+}

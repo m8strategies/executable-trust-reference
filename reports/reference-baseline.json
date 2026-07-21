@@ -1,0 +1,559 @@
+{
+  "boundary_note": "These results describe this reference implementation's conformance to its own human-authored synthetic golden set, using a deterministic verifier and a fictional evidence corpus. They are not a measurement of any production system, they do not reproduce production performance, and they must not be compared numerically with the field observations reported in the paper.",
+  "cases": [
+    {
+      "actual": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "DIRECT"
+      },
+      "case_id": "01-code-review-expiry-direct",
+      "category": "grounded-direct",
+      "divergence": null,
+      "expected": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "DIRECT"
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "DIRECT"
+      },
+      "case_id": "02-oncall-handover-direct",
+      "category": "grounded-direct",
+      "divergence": null,
+      "expected": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "DIRECT"
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "BOUNDED"
+      },
+      "case_id": "03-retention-bounded-scope",
+      "category": "grounded-bounded",
+      "divergence": null,
+      "expected": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "BOUNDED"
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "BOUNDED"
+      },
+      "case_id": "04-deployment-window-bounded",
+      "category": "grounded-bounded",
+      "divergence": null,
+      "expected": {
+        "outcome": "GROUNDED",
+        "reason_code": null,
+        "strategy": "BOUNDED"
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "insufficient_evidence",
+        "strategy": null
+      },
+      "case_id": "05-empty-retrieval-insufficient",
+      "category": "insufficient-evidence",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "insufficient_evidence",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "insufficient_evidence",
+        "strategy": null
+      },
+      "case_id": "06-weak-relevance-insufficient",
+      "category": "insufficient-evidence",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "insufficient_evidence",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "case_id": "07-mixed-support-unsupported-claim",
+      "category": "unsupported-claim",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "case_id": "08-embellished-detail-unsupported",
+      "category": "unsupported-claim",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "case_id": "09-contradicted-severity-claim",
+      "category": "contradicted-claim",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "case_id": "10-contradicted-freeze-window",
+      "category": "contradicted-claim",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "unsupported_claim",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "no_supported_claims",
+        "strategy": null
+      },
+      "case_id": "11-all-claims-rejected",
+      "category": "no-supported-claims",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "no_supported_claims",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "empty_claim_set",
+        "strategy": null
+      },
+      "case_id": "12-degenerate-empty-claim-set",
+      "category": "empty-claim-set",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "empty_claim_set",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "does_not_address_question",
+        "strategy": null
+      },
+      "case_id": "13-truthful-but-irrelevant",
+      "category": "irrelevant-answer",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "does_not_address_question",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "unknown_claim_verdict",
+        "strategy": null
+      },
+      "case_id": "14-verifier-unknown-verdict",
+      "category": "malformed-verifier-output",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "unknown_claim_verdict",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "missing_claim_verdict",
+        "strategy": null
+      },
+      "case_id": "15-verifier-missing-verdict",
+      "category": "malformed-verifier-output",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "missing_claim_verdict",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "malformed_verifier_output",
+        "strategy": null
+      },
+      "case_id": "16-verifier-omits-relevance-field",
+      "category": "malformed-verifier-output",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "malformed_verifier_output",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "verifier_error",
+        "strategy": null
+      },
+      "case_id": "17-verifier-raises",
+      "category": "verifier-exception",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "verifier_error",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "verifier_timeout",
+        "strategy": null
+      },
+      "case_id": "18-verifier-times-out",
+      "category": "verifier-timeout",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "verifier_timeout",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "verifier_output_truncated",
+        "strategy": null
+      },
+      "case_id": "19-verifier-output-truncated",
+      "category": "verifier-output-truncated",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "verifier_output_truncated",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "no_verifier_available",
+        "strategy": null
+      },
+      "case_id": "20-no-verifier-available",
+      "category": "verifier-unavailable",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "no_verifier_available",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "authorization_denied",
+        "strategy": null
+      },
+      "case_id": "21-contractor-denied",
+      "category": "authorization-denied",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "authorization_denied",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "authorization_denied",
+        "strategy": null
+      },
+      "case_id": "22-engineer-denied-architecture-standards",
+      "category": "authorization-denied",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "authorization_denied",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "evidence_provenance_invalid",
+        "strategy": null
+      },
+      "case_id": "23-evidence-provenance-invalid",
+      "category": "evidence-provenance-invalid",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "evidence_provenance_invalid",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "contract_version_unknown",
+        "strategy": null
+      },
+      "case_id": "24-unknown-contract-version",
+      "category": "unknown-contract",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "contract_version_unknown",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "contract_not_ratified",
+        "strategy": null
+      },
+      "case_id": "25-unratified-draft-contract",
+      "category": "unratified-contract",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "contract_not_ratified",
+        "strategy": null
+      },
+      "generation_invoked": false,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "no_supported_claims",
+        "strategy": null
+      },
+      "case_id": "26-near-miss-environment-scope",
+      "category": "near-miss",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "no_supported_claims",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    },
+    {
+      "actual": {
+        "outcome": "REFUSED",
+        "reason_code": "no_supported_claims",
+        "strategy": null
+      },
+      "case_id": "27-near-miss-adjacent-service",
+      "category": "near-miss",
+      "divergence": null,
+      "expected": {
+        "outcome": "REFUSED",
+        "reason_code": "no_supported_claims",
+        "strategy": null
+      },
+      "generation_invoked": true,
+      "passed": true
+    }
+  ],
+  "label": "Reference implementation synthetic baseline",
+  "provenance": {
+    "case_count": 27,
+    "contract_id": "executable-trust-reference",
+    "contract_version": "1.0",
+    "evidence": "synthetic; a fictional internal-engineering corpus",
+    "label": "Reference implementation synthetic baseline",
+    "note": "These numbers describe this reference implementation's conformance to its own human-authored synthetic golden set. They are not a measurement of any production system and are not comparable to production figures reported in the accompanying paper.",
+    "package_version": "0.1.0",
+    "population": "synthetic / test — never aggregated into observed metrics",
+    "ratification_status": "ratified",
+    "verifier": "deterministic (scripted); no model provider is used"
+  },
+  "summary": {
+    "by_category": {
+      "authorization-denied": {
+        "passed": 2,
+        "total": 2
+      },
+      "contradicted-claim": {
+        "passed": 2,
+        "total": 2
+      },
+      "empty-claim-set": {
+        "passed": 1,
+        "total": 1
+      },
+      "evidence-provenance-invalid": {
+        "passed": 1,
+        "total": 1
+      },
+      "grounded-bounded": {
+        "passed": 2,
+        "total": 2
+      },
+      "grounded-direct": {
+        "passed": 2,
+        "total": 2
+      },
+      "insufficient-evidence": {
+        "passed": 2,
+        "total": 2
+      },
+      "irrelevant-answer": {
+        "passed": 1,
+        "total": 1
+      },
+      "malformed-verifier-output": {
+        "passed": 3,
+        "total": 3
+      },
+      "near-miss": {
+        "passed": 2,
+        "total": 2
+      },
+      "no-supported-claims": {
+        "passed": 1,
+        "total": 1
+      },
+      "unknown-contract": {
+        "passed": 1,
+        "total": 1
+      },
+      "unratified-contract": {
+        "passed": 1,
+        "total": 1
+      },
+      "unsupported-claim": {
+        "passed": 2,
+        "total": 2
+      },
+      "verifier-exception": {
+        "passed": 1,
+        "total": 1
+      },
+      "verifier-output-truncated": {
+        "passed": 1,
+        "total": 1
+      },
+      "verifier-timeout": {
+        "passed": 1,
+        "total": 1
+      },
+      "verifier-unavailable": {
+        "passed": 1,
+        "total": 1
+      }
+    },
+    "failed": 0,
+    "gate_minimum_pass_rate": 1.0,
+    "gate_passed": true,
+    "pass_rate": 1.0,
+    "passed": 27,
+    "total": 27
+  }
+}

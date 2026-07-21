@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/decision-record.schema.json",
+  "title": "Decision Record",
+  "description": "An immutable record of one governed decision. The payload is never mutated: corrections create a superseding record, and lifecycle state is derived from the append-only transition log rather than stored here. The outcome/strategy relation is enforced structurally by the allOf clauses below, not merely by convention.",
+  "type": "object",
+  "required": [
+    "decision_id",
+    "recorded_at",
+    "contract_id",
+    "contract_version",
+    "correlation_id",
+    "subject_id",
+    "authorization_result",
+    "outcome",
+    "verification_mechanism",
+    "evidence_count",
+    "claim_counts",
+    "latency_ms",
+    "population",
+    "environment",
+    "request_ref",
+    "evidence_set_ref"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "decision_id": { "type": "string", "minLength": 1 },
+    "recorded_at": { "type": "string", "format": "date-time" },
+
+    "contract_id": { "type": "string", "minLength": 1 },
+    "contract_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "amendment_ref": {
+      "description": "Amendment governing this decision, when one applies.",
+      "type": ["string", "null"]
+    },
+
+    "correlation_id": { "type": "string", "minLength": 1 },
+    "subject_id": { "type": "string", "minLength": 1 },
+    "authorization_result": { "enum": ["ALLOWED", "DENIED"] },
+
+    "outcome": { "enum": ["GROUNDED", "REFUSED"] },
+    "strategy": {
+      "description": "Present if and only if outcome is GROUNDED. REFUSED carries no strategy: absence is the correct representation, and a third 'refusal' strategy would duplicate the outcome across two semantic axes.",
+      "enum": ["DIRECT", "BOUNDED", null]
+    },
+    "reason_code": {
+      "description": "Controlled reason code from the governing contract's reason-code set. Required when outcome is REFUSED.",
+      "type": ["string", "null"]
+    },
+
+    "verification_mechanism": {
+      "description": "Name of the mechanism that produced the claim verdicts, so a decision can be attributed to the verifier that made it.",
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence_count": { "type": "integer", "minimum": 0 },
+    "claim_counts": {
+      "description": "Counts by verdict. Null total means verification never ran; zero means it ran and produced no claims. The distinction is load-bearing and is why these are nullable rather than defaulted to zero.",
+      "type": "object",
+      "required": ["total", "supported", "unsupported", "contradicted"],
+      "additionalProperties": false,
+      "properties": {
+        "total": { "type": ["integer", "null"], "minimum": 0 },
+        "supported": { "type": ["integer", "null"], "minimum": 0 },
+        "unsupported": { "type": ["integer", "null"], "minimum": 0 },
+        "contradicted": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "latency_ms": {
+      "description": "Wall time of the verification call only. Not retrieval, rendering, or persistence.",
+      "type": "integer",
+      "minimum": 0
+    },
+
+    "population": { "enum": ["observed", "synthetic"] },
+    "environment": { "enum": ["production", "staging", "development", "test"] },
+
+    "request_ref": { "type": "string", "minLength": 1 },
+    "evidence_set_ref": { "type": "string", "minLength": 1 },
+
+    "supersedes": {
+      "description": "Set on a successor record. Supersession is recorded by the successor and by an append-only transition; the predecessor is never edited.",
+      "type": ["string", "null"]
+    }
+  },
+
+  "allOf": [
+    {
+      "$comment": "ET-OUT-001 / ET-OUT-003: GROUNDED requires a strategy; REFUSED forbids one and requires a reason code.",
+      "if": { "properties": { "outcome": { "const": "GROUNDED" } }, "required": ["outcome"] },
+      "then": {
+        "required": ["strategy"],
+        "properties": { "strategy": { "enum": ["DIRECT", "BOUNDED"] } }
+      }
+    },
+    {
+      "$comment": "ET-OUT-002: REFUSED must carry no strategy and must carry a controlled reason code.",
+      "if": { "properties": { "outcome": { "const": "REFUSED" } }, "required": ["outcome"] },
+      "then": {
+        "required": ["reason_code"],
+        "properties": {
+          "strategy": { "type": "null" },
+          "reason_code": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ]
+}

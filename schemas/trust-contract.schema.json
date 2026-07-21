@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/trust-contract.schema.json",
+  "title": "Trust Contract",
+  "description": "Layer 1 artifact: the versioned, ratified definition of what trustworthy output means for a system. Only a contract validating against this schema may be loaded, and only a ratified one may govern a decision.",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "version",
+    "title",
+    "ratification",
+    "vocabulary",
+    "evidence",
+    "verification",
+    "authorization",
+    "contract_resolution",
+    "telemetry",
+    "metrics",
+    "resilience",
+    "lifecycle",
+    "evaluation"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract_id": { "type": "string", "minLength": 1 },
+    "version": { "$ref": "#/$defs/semver" },
+    "title": { "type": "string", "minLength": 1 },
+
+    "ratification": {
+      "type": "object",
+      "required": ["status", "ratified_on", "ratified_by", "effective_from", "amendments"],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "description": "Only 'ratified' may govern a decision. Every other status fails closed.",
+          "enum": ["draft", "ratified", "superseded", "expired"]
+        },
+        "ratified_on": { "type": "string", "format": "date" },
+        "ratified_by": { "type": "string", "minLength": 1 },
+        "effective_from": { "type": "string", "format": "date-time" },
+        "amendments": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "vocabulary": {
+      "type": "object",
+      "required": [
+        "claim_verdicts",
+        "decision_outcomes",
+        "response_strategies",
+        "outcome_strategy_relation"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "claim_verdicts": {
+          "description": "Reserved exclusively for claim-level classification.",
+          "type": "array",
+          "items": { "enum": ["SUPPORTED", "UNSUPPORTED", "CONTRADICTED"] },
+          "minItems": 3,
+          "uniqueItems": true
+        },
+        "decision_outcomes": {
+          "type": "array",
+          "items": { "enum": ["GROUNDED", "REFUSED"] },
+          "minItems": 2,
+          "uniqueItems": true
+        },
+        "response_strategies": {
+          "description": "Exactly two. REFUSED is an outcome, never a strategy: duplicating it across both axes would blur two separate semantic categories.",
+          "type": "array",
+          "items": { "enum": ["DIRECT", "BOUNDED"] },
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true
+        },
+        "outcome_strategy_relation": {
+          "type": "array",
+          "minItems": 3,
+          "items": { "$ref": "#/$defs/rule" }
+        }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "required": ["gate", "provenance", "quality_labels"],
+      "additionalProperties": false,
+      "properties": {
+        "gate": {
+          "type": "object",
+          "required": [
+            "id",
+            "min_similarity_score",
+            "min_chunks_required",
+            "top_k",
+            "statement",
+            "refusal_reason_code"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "$ref": "#/$defs/ruleId" },
+            "min_similarity_score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "min_chunks_required": { "type": "integer", "minimum": 1 },
+            "top_k": { "type": "integer", "minimum": 1 },
+            "statement": { "type": "string", "minLength": 1 },
+            "refusal_reason_code": { "type": "string", "minLength": 1 }
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "required": ["id", "required", "permitted_sources", "statement", "refusal_reason_code"],
+          "additionalProperties": false,
+          "properties": {
+            "id": { "$ref": "#/$defs/ruleId" },
+            "required": { "type": "boolean" },
+            "permitted_sources": {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "statement": { "type": "string", "minLength": 1 },
+            "refusal_reason_code": { "type": "string", "minLength": 1 }
+          }
+        },
+        "quality_labels": {
+          "type": "array",
+          "items": { "enum": ["sufficient", "insufficient", "empty"] },
+          "minItems": 3,
+          "uniqueItems": true
+        }
+      }
+    },
+
+    "verification": {
+      "type": "object",
+      "required": [
+        "fail_closed",
+        "required_claim_fields",
+        "statement_on_missing_fields",
+        "rules",
+        "budget"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fail_closed": {
+          "description": "Structurally constant. A contract declaring fail_closed:false is not an Executable Trust contract.",
+          "const": true
+        },
+        "required_claim_fields": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "statement_on_missing_fields": { "type": "string", "minLength": 1 },
+        "rules": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
+        "budget": {
+          "type": "object",
+          "required": ["call_budget_ms_p50"],
+          "additionalProperties": false,
+          "properties": { "call_budget_ms_p50": { "type": "integer", "minimum": 1 } }
+        }
+      }
+    },
+
+    "authorization": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
+    "contract_resolution": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
+    "telemetry": {
+      "type": "object",
+      "required": ["rules", "populations"],
+      "additionalProperties": false,
+      "properties": {
+        "rules": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
+        "populations": {
+          "type": "object",
+          "required": ["environments", "classifications", "observed_metric_environments"],
+          "additionalProperties": false,
+          "properties": {
+            "environments": {
+              "type": "array",
+              "items": { "enum": ["production", "staging", "development", "test"] },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "classifications": {
+              "type": "array",
+              "items": { "enum": ["observed", "synthetic"] },
+              "minItems": 2,
+              "uniqueItems": true
+            },
+            "observed_metric_environments": {
+              "description": "Environments whose events may be aggregated into a metric described as observed. Test and synthetic populations are excluded by construction.",
+              "type": "array",
+              "items": { "enum": ["production", "staging", "development", "test"] },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        }
+      }
+    },
+
+    "metrics": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
+    "resilience": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } },
+
+    "lifecycle": {
+      "type": "object",
+      "required": ["states", "initial_state", "terminal_states", "transitions", "rules"],
+      "additionalProperties": false,
+      "properties": {
+        "states": {
+          "type": "array",
+          "items": { "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "SUPERSEDED"] },
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "initial_state": { "const": "PROPOSED" },
+        "terminal_states": {
+          "type": "array",
+          "items": { "enum": ["REJECTED", "SUPERSEDED"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "transitions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "from",
+              "to",
+              "requires_human_review",
+              "requires_actor",
+              "requires_role",
+              "requires_reason_code",
+              "statement"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "$ref": "#/$defs/ruleId" },
+              "from": { "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "SUPERSEDED"] },
+              "to": { "enum": ["PROPOSED", "ACCEPTED", "REJECTED", "SUPERSEDED"] },
+              "requires_human_review": { "type": "boolean" },
+              "requires_actor": { "type": "boolean" },
+              "requires_role": { "type": "boolean" },
+              "requires_reason_code": { "type": "boolean" },
+              "requires_successor": { "type": "boolean" },
+              "statement": { "type": "string", "minLength": 1 }
+            }
+          }
+        },
+        "rules": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } }
+      }
+    },
+
+    "evaluation": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/rule" } }
+  },
+
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "ruleId": {
+      "description": "Stable rule identifier. Every one must map to at least one test.",
+      "type": "string",
+      "pattern": "^ET-[A-Z]+-[0-9]{3}$"
+    },
+    "rule": {
+      "type": "object",
+      "required": ["id", "rule", "statement"],
+      "properties": {
+        "id": { "$ref": "#/$defs/ruleId" },
+        "rule": { "type": "string", "minLength": 1 },
+        "statement": { "type": "string", "minLength": 1 },
+        "reason_code": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

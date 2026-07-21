@@ -1,0 +1,111 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "executable-trust"
+version = "0.1.0"
+description = "Reference implementation of the mechanisms described in Executable Trust: The Runtime Architecture of Production-Ready Enterprise AI"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Moataz Mahmoud" }]
+maintainers = [{ name = "Moataz Mahmoud" }]
+keywords = [
+    "executable-trust",
+    "governance-as-code",
+    "ai-governance",
+    "trust-contract",
+    "fail-closed",
+    "verification",
+    "reference-implementation",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+# PEP 639 license expression. The legacy "License :: OSI Approved :: ..."
+# classifier is deliberately absent: setuptools rejects a build that carries
+# both, and the expression is the supported form.
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = [
+    "pydantic>=2.6,<3",
+    "PyYAML>=6.0,<7",
+    "jsonschema>=4.21,<5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-PyYAML",
+    "types-jsonschema",
+]
+
+[project.scripts]
+executable-trust = "executable_trust.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+executable_trust = ["py.typed"]
+
+# ---------------------------------------------------------------------------
+# Tooling
+# ---------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "contract: validates a contract or schema artifact",
+    "regression: pins a documented failure mode",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["executable_trust"]
+omit = ["*/cli.py"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "RUF"]
+ignore = ["N818"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["executable_trust"]
+mypy_path = "src"
+strict = true
+warn_unreachable = true
+disallow_any_generics = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["jsonschema.*"]
+ignore_missing_imports = true

@@ -1,0 +1,181 @@
+name: CI
+
+# Ordinary CI. Expected to PASS while release placeholders are still unresolved:
+# that is the working state of this repository before publication. The gate that
+# must fail while they remain lives in release-validation.yml.
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, types, contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Ruff format check
+        run: ruff format --check .
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: mypy
+        run: mypy
+
+      - name: Validate contracts and schemas
+        run: python scripts/validate_contracts.py
+
+      - name: Validate traceability
+        run: python scripts/validate_traceability.py
+
+  boundary:
+    name: Publication boundary and secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the secret scan sees every commit, not only the tip.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Publication boundary
+        # The public term list is deliberately minimal; the sensitive extended
+        # list stays local and gitignored. See the script's docstring.
+        run: python scripts/validate_publication_boundary.py
+
+      - name: Secret scan (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Tests with coverage
+        # No network, no credentials, no services. If this ever needs one, the
+        # repository has broken a claim it makes in its README.
+        run: >-
+          pytest --cov=executable_trust --cov-report=term-missing
+          --cov-report=xml --cov-fail-under=90
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
+          retention-days: 30
+
+  baseline:
+    name: Synthetic reference baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install
+        run: python -m pip install --upgrade pip && pip install -e ".[dev]"
+
+      - name: Run the golden-set gate
+        # Exit 1 on any divergence from a human-authored expectation; exit 2 if
+        # the suite could not run at all.
+        run: python evaluation/run_baseline.py --out /tmp/baseline-out
+
+      - name: Committed reports must be current
+        # A stale committed baseline is worse than none: it is a number people
+        # trust that no longer describes the code.
+        run: python evaluation/run_baseline.py --check
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reference-baseline
+          path: /tmp/baseline-out
+          retention-days: 90
+
+  example:
+    name: Example runs without external services
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install (runtime dependencies only)
+        run: python -m pip install --upgrade pip && pip install -e .
+
+      - name: Run the reference flow
+        run: python examples/run_reference_flow.py
+
+      - name: CLI smoke test
+        run: |
+          executable-trust --version
+          executable-trust contracts
+          executable-trust rules
+
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build
+        run: python -m pip install --upgrade pip build && python -m build
+
+      - name: Check metadata
+        run: pip install twine && twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 14

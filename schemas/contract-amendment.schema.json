@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://executable-trust.reference/schemas/contract-amendment.schema.json",
+  "title": "Contract Amendment",
+  "description": "A ratified, dated, attributable change to a trust contract. An amendment never rewrites the contract it amends: the prior version file is preserved on disk and continues to govern decisions that named it. Authorship, review and ratification are three separate roles, because an author ratifying their own amendment is the failure mode this artifact exists to prevent.",
+  "type": "object",
+  "required": [
+    "amendment_id",
+    "contract_id",
+    "previous_contract_version",
+    "new_contract_version",
+    "title",
+    "status",
+    "author",
+    "reviewer",
+    "ratifier",
+    "approved_at",
+    "effective_from",
+    "affected_rule_ids",
+    "rationale",
+    "accepted_trade_off",
+    "compatibility_notes",
+    "preserves_prior_version"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "amendment_id": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+-A[0-9]+$" },
+    "contract_id": { "type": "string", "minLength": 1 },
+    "previous_contract_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "new_contract_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["draft", "ratified", "withdrawn"] },
+
+    "author": { "type": "string", "minLength": 1 },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "ratifier": { "type": "string", "minLength": 1 },
+
+    "approved_at": { "type": "string", "format": "date-time" },
+    "effective_from": { "type": "string", "format": "date-time" },
+
+    "affected_rule_ids": {
+      "description": "Stable rule identifiers whose meaning changes. Validated against the amended contract, so an amendment cannot name a rule that does not exist.",
+      "type": "array",
+      "items": { "type": "string", "pattern": "^ET-[A-Z]+-[0-9]{3}$" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+
+    "rationale": { "type": "string", "minLength": 1 },
+    "accepted_trade_off": {
+      "description": "What is given up. An amendment claiming no cost is usually not being honest about one.",
+      "type": "string",
+      "minLength": 1
+    },
+    "forward_constraint": {
+      "description": "A constraint binding whoever implements this area next. Optional, but it is what stops the same loophole reopening later.",
+      "type": "string"
+    },
+    "compatibility_notes": { "type": "string", "minLength": 1 },
+    "preserves_prior_version": { "const": true }
+  }
+}

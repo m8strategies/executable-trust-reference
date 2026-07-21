@@ -1,0 +1,79 @@
+# =============================================================================
+# Contract Amendment v1.0-A1 — Partial-answer repair versus refusal
+#
+# Layer 4 of the trust stack: when the contract and the implementation
+# disagree, the resolution is a numbered, dated, attributable amendment — never
+# a silent edit to whichever is more convenient.
+#
+# This amendment is the paper's worked example, authored for the public
+# reference implementation. It is illustrative: the identifiers, dates, and
+# people below are synthetic, and the amendment is not applied to
+# executable-trust-v1.0.yaml (its `amendments` list is empty). It exists to
+# demonstrate the amendment structure and to be exercised by tests, including
+# the invariant that a prior contract version is preserved rather than
+# rewritten.
+# =============================================================================
+
+amendment_id: v1.0-A1
+contract_id: executable-trust-reference
+previous_contract_version: "1.0"
+new_contract_version: "1.1"
+
+title: Refuse a partially supported answer rather than repairing it in place
+
+status: ratified
+
+# --- Attribution: an amendment is a deliberate, attributable act -------------
+author: reference-maintainer
+reviewer: reference-reviewer
+ratifier: reference-owner
+approved_at: "2026-02-01T00:00:00Z"
+effective_from: "2026-02-01T00:00:00Z"
+
+affected_rule_ids:
+  - ET-VER-004
+  - ET-VER-005
+
+rationale: >-
+  The contract originally specified that an answer whose claims are only
+  partially supported should be repaired in place: state what the evidence
+  supports, disclaim what it does not. The implementation instead refused the
+  entire answer whenever any claim was unsupported or contradicted.
+
+  An independent review found the divergence. The implementer's reasoning
+  proved to be the stronger position: a repair produced by the same mechanism
+  that produced the flawed answer is itself an unverified generation. Trusting
+  the patch requires verifying the patch, which returns the system to the
+  problem it started with. Refusing is the only outcome that does not require
+  trusting an unchecked generation.
+
+  The resolution was neither to change the code to match the document nor to
+  edit the document to match the code without saying so. It is this amendment:
+  the contract's rule changes, the reasoning is recorded, and the cost is
+  stated plainly.
+
+accepted_trade_off: >-
+  A user who asks a question that is partially answerable from the evidence
+  receives no answer rather than a partial one. This is a real loss of utility,
+  accepted deliberately, because a partial answer produced by an unverified
+  repair step cannot be distinguished by the user from a fully grounded one.
+
+# A forward constraint on whoever implements this next. The amendment does not
+# merely record a decision; it closes the loophole for the next implementer.
+forward_constraint: >-
+  Any future repair mechanism must pass its own output back through the full
+  verification path before that output may be presented. A repair that is not
+  itself verified is prohibited under every version of this contract.
+
+compatibility_notes: >-
+  Behavior-compatible with the shipped v1.0 implementation, which already
+  refused rather than repaired. This amendment changes the specification to
+  match the reviewed and ratified behavior, and records why that behavior is
+  correct. Decisions recorded under v1.0 remain valid and are not re-evaluated:
+  the reason code `unsupported_claim` carries the same meaning in both
+  versions.
+
+# The prior version is preserved as its own artifact. An amendment never
+# rewrites the contract it amends; contracts/executable-trust-v1.0.yaml remains
+# on disk, unmodified, and continues to govern decisions that named it.
+preserves_prior_version: true

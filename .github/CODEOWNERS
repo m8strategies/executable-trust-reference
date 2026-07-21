@@ -1,0 +1,9 @@
+# Code owners for this repository.
+#
+# GitHub requires every entry to reference a user or team with write access.
+# @mo3taz1986 is the repository owner and therefore qualifies.
+#
+# Later-matching rules win, so the more specific entry is placed last.
+
+*             @mo3taz1986
+/.github/     @mo3taz1986
